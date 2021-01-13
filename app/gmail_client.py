@@ -3,8 +3,9 @@ import pickle
 from typing import List
 
 from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
+from googleapiclient.discovery import build, Resource
 
 from app.configuration import CNF
 
@@ -14,7 +15,7 @@ class GmailClient:
         self.service = self._build_service(self._authorize())
 
     @staticmethod
-    def _authorize(credentials_file: str = CNF.CREDENTIALS_FILE, scopes: List[str] = CNF.SCOPES):
+    def _authorize(credentials_file: str = CNF.CREDENTIALS_FILE, scopes: List[str] = CNF.SCOPES) -> Credentials:
         credentials = None
         # The file token.pickle stores the user's access and refresh tokens, and is created automatically when the
         # authorization flow completes for the first time.
@@ -37,10 +38,10 @@ class GmailClient:
         return credentials
 
     @staticmethod
-    def _build_service(credentials):
+    def _build_service(credentials: Credentials) -> Resource:
         return build('gmail', 'v1', credentials=credentials)
 
-    def get_labels(self):
+    def get_labels(self) -> None:
         results = self.service.users().labels().list(userId='me').execute()
         labels = results.get('labels', [])
 
